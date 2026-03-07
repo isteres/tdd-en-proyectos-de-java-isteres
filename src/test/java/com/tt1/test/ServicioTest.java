@@ -2,55 +2,79 @@ package com.tt1.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import com.tt1.test.mock.RepositorioMock;
+import com.tt1.test.mock.MailerStubMock;
 import java.time.LocalDate;
+import java.util.List;
 
 class ServicioTest {
-
     private Servicio servicio;
+    private RepositorioInterface repoMock;
+    private MailerInterface mailerMock;
 
     @BeforeEach
     void setUp() {
-        // ARRANGE (Preparar): Se ejecuta antes de cada @Test.
-        // Instanciamos la clase Servicio para que esté limpia en cada prueba.
-        servicio = new Servicio();
-    }
-
-    @AfterEach
-    void tearDown() {
-        // LIMPIEZA: Se ejecuta después de cada @Test.
-        // Liberamos la memoria (útil en proyectos más grandes).
-        servicio = null;
+        // Usamos mocks para las dependencias para que sea un test unitario
+        repoMock = new RepositorioMock();
+        mailerMock = new MailerStubMock();
+        servicio = new Servicio(repoMock, mailerMock);
     }
 
     @Test
-    void testCrearTarea() {
-        // ACT & ASSERT: Ejecutamos la acción y comprobamos el resultado esperado.
-        // Como aún no hay lógica, esperamos que lance la excepción.
-        assertThrows(UnsupportedOperationException.class, () -> {
-            servicio.crearTarea("Aprender JUnit", LocalDate.now().plusDays(2));
-        }, "Debería lanzar UnsupportedOperationException al crear la tarea");
+    void testAñadirTarea() {
+        // Arrange
+        String nombre = "Nueva Tarea";
+        LocalDate fecha = LocalDate.now().plusDays(1);
+
+        // Act
+        servicio.crearTarea(nombre, fecha);
+
+        // Assert
+        ToDo tarea = repoMock.encontrarPorNombre(nombre);
+        assertNotNull(tarea, "La tarea debería haberse guardado en el repositorio");
+        assertEquals(nombre, tarea.getNombre());
     }
 
     @Test
-    void testRegistrarEmail() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            servicio.registrarEmail("usuario@ejemplo.com");
-        }, "Debería lanzar UnsupportedOperationException al registrar un email");
+    void testAñadirDireccionCorreo() {
+        // Arrange
+        String email = "test@ejemplo.com";
+
+        // Act
+        servicio.registrarEmail(email);
+
+        // Assert
+        List<String> emails = repoMock.obtenerEmails();
+        assertTrue(emails.contains(email), "El correo debería haberse registrado en el repositorio");
     }
 
     @Test
-    void testCompletarTarea() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            servicio.completarTarea("Aprender JUnit");
-        }, "Debería lanzar UnsupportedOperationException al completar la tarea");
+    void testMarcarTareaComoCompletada() {
+        // Arrange
+        String nombre = "Tarea a Completar";
+        servicio.crearTarea(nombre, LocalDate.now().plusDays(1));
+
+        // Act
+        servicio.completarTarea(nombre);
+
+        // Assert
+        ToDo tarea = repoMock.encontrarPorNombre(nombre);
+        assertTrue(tarea.getCompletado(), "La tarea debería estar marcada como completada");
     }
 
     @Test
     void testListarPendientes() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            servicio.listarPendientes();
-        }, "Debería lanzar UnsupportedOperationException al listar pendientes");
+        // Arrange
+        servicio.crearTarea("Tarea 1", LocalDate.now().plusDays(1));
+        servicio.crearTarea("Tarea Completada", LocalDate.now().plusDays(2));
+        servicio.completarTarea("Tarea Completada");
+
+        // Act
+        List<ToDo> pendientes = servicio.listarPendientes();
+
+        // Assert
+        assertEquals(1, pendientes.size(), "Solo debería haber una tarea pendiente");
+        assertEquals("Tarea 1", pendientes.get(0).getNombre());
     }
-} 
+}

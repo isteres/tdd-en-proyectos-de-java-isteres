@@ -1,8 +1,13 @@
 package com.tt1.test;
 
-public class MailerStub {
+public class MailerStub implements MailerInterface {
+    @Override
     public boolean enviarMensaje(String email, String texto) {
-        // Deberá escribir por consola destino y mensaje más adelante
-        throw new UnsupportedOperationException("Clase aún no implementada.");
+        if (email == null || email.isEmpty() || texto == null) {
+            return false;
+        }
+        System.out.println("Destino: " + email);
+        System.out.println("Mensaje: " + texto);
+        return true;
     }
 }

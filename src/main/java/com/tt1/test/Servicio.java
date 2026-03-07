@@ -2,24 +2,45 @@ package com.tt1.test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class Servicio {
-    private Repositorio repositorio;
-    private MailerStub mailer;
+public class Servicio implements ServicioInterface {
+    private final RepositorioInterface repositorio;
+    private final MailerInterface mailer;
 
+    public Servicio(RepositorioInterface repositorio, MailerInterface mailer) {
+        this.repositorio = repositorio;
+        this.mailer = mailer;
+    }
+
+    public Servicio() {
+        this.repositorio = new Repositorio();
+        this.mailer = new MailerStub();
+    }
+
+    @Override
     public void crearTarea(String nombre, LocalDate fecha) {
-        throw new UnsupportedOperationException("Clase aún no implementada.");
+        ToDo t = new ToDo();
+        t.setNombre(nombre);
+        t.setFechaLimite(fecha);
+        t.setCompletado(false);
+        repositorio.persistirTarea(t);
     }
 
+    @Override
     public void registrarEmail(String email) {
-        throw new UnsupportedOperationException("Clase aún no implementada.");
+        repositorio.guardarEmail(email);
     }
 
+    @Override
     public void completarTarea(String nombre) {
-        throw new UnsupportedOperationException("Clase aún no implementada.");
+        repositorio.marcarCompletada(nombre);
     }
 
+    @Override
     public List<ToDo> listarPendientes() {
-        throw new UnsupportedOperationException("Clase aún no implementada.");
+        return repositorio.listarTodas().stream()
+                .filter(t -> !t.getCompletado())
+                .collect(Collectors.toList());
     }
 }
