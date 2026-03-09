@@ -1,0 +1,40 @@
+name: Deploy Javadoc to GitHub Pages
+
+on:
+    push:
+        branches:
+            - [cite_start]stable # Se activa solo al actualizar la rama stable [cite: 31]
+
+permissions:
+    contents: read
+    pages: write
+    id-token: write
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Set up JDK 17
+              uses: actions/setup-java@v4
+              with:
+                  java-version: '17'
+                  distribution: 'temurin'
+
+            - name: Generate Javadoc
+                # Usamos el comando que probamos anteriormente [cite: 12, 14]
+              run: javadoc -d doc -sourcepath src -subpackages com.ttl.test -encoding UTF-8
+
+            - name: Setup Pages
+              uses: actions/configure-pages@v4
+
+            - name: Upload artifact
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: 'doc' # Carpeta donde se guardó el javadoc generado
+
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
