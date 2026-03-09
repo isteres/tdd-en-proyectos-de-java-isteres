@@ -24,7 +24,7 @@ jobs:
                   distribution: 'temurin'
 
             - name: Generate Javadoc
-              run: javadoc -d doc -sourcepath src -subpackages com.ttl.test -encoding UTF-8
+              run: javadoc -d doc src/main/java/com/tt1/test/*.java
 
             - name: Setup Pages
               uses: actions/configure-pages@v4
