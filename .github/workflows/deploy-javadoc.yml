@@ -3,7 +3,7 @@ name: Deploy Javadoc to GitHub Pages
 on:
     push:
         branches:
-            - [cite_start]stable # Se activa solo al actualizar la rama stable [cite: 31]
+            - stable
 
 permissions:
     contents: read
@@ -24,7 +24,6 @@ jobs:
                   distribution: 'temurin'
 
             - name: Generate Javadoc
-                # Usamos el comando que probamos anteriormente [cite: 12, 14]
               run: javadoc -d doc -sourcepath src -subpackages com.ttl.test -encoding UTF-8
 
             - name: Setup Pages
@@ -33,7 +32,7 @@ jobs:
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: 'doc' # Carpeta donde se guardó el javadoc generado
+                  path: 'doc'
 
             - name: Deploy to GitHub Pages
               id: deployment
